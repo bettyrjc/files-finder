@@ -23,9 +23,9 @@ const Header = () => {
           <Button
             color='secondary'
             onClick={logout}
-            size="normal"
+            size="small"
             variant="outlined"
-            icon={<LogOut size={20} />}
+            icon={<LogOut size={12} />}
           >
             Cerrar sesion
           </Button>
