@@ -3,6 +3,8 @@
 import React from 'react';
 
 import Link from 'next/link';
+import Button from '../buttons/Button';
+import { LogOut } from 'lucide-react';
 
 
 const Header = () => {
@@ -12,15 +14,21 @@ const Header = () => {
   }
   return (
     <>
-      <div className="relative flex items-center justify-between p-4 bg-blue-700">
-        <Link href="/" className="text-xl font-bold text-blue-950">
+      <div className="relative flex items-center justify-between p-4 mb-3 border-b shadow-md ">
+        <Link href="/" className="text-xl text-orange-400 uppercase">
           Finder
         </Link>
 
         <div className="flex items-center justify-end w-1/2 gap-4 text-lg font-medium text-white-500">
-          <button onClick={logout} className="px-3 py-2 transition-all border border-white rounded-lg hover:bg-blue-200 hover:text-blue-700 hover:border-none">
+          <Button
+            color='secondary'
+            onClick={logout}
+            size="normal"
+            variant="outlined"
+            icon={<LogOut size={20} />}
+          >
             Cerrar sesion
-          </button>
+          </Button>
         </div>
       </div>
 
