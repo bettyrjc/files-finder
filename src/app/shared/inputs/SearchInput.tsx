@@ -4,7 +4,7 @@ import { ChangeEvent, forwardRef } from "react";
 const SearchInput = forwardRef<HTMLInputElement, { onChange: (e: ChangeEvent<HTMLInputElement>) => void }>(
   ({ onChange }, ref) => {
     return (
-      <label className="flex items-center gap-2 px-5 py-2 border border-gray-300 rounded-md w-[400px]">
+      <label className="flex items-center gap-2 px-5 py-2 border border-gray-300 rounded-md w-[320px]">
         <input
           type="text"
           className="w-full text-sm text-gray-700 bg-transparent focus:outline-none"

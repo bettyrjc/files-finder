@@ -25,8 +25,8 @@ const FilesFinder = () => {
     <div className="w-full min-h-[700px] h-full   text-gray-900 mt-0 pt-0">
       <>
         {/* header table NTH */}
-        <div className="flex items-center justify-between gap-6 px-2 py-4 border border-gray-200 ">
-          <div>
+        <div className="items-center justify-between gap-6 px-2 py-4 border border-gray-200 md:flex ">
+          <div className='mb-2 md:mb-0'>
             <Button
               color='primary'
               onClick={() => console.log('filter')}
@@ -58,11 +58,17 @@ const FilesFinder = () => {
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                   Kind
                 </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filesData?.length > 0 && filesData.map((file: any, index: any) => (
-                <FileItem key={`${file.name}-${index}`} item={file} />
+                <FileItem key={`${file.name}-${index}`} item={file}
+                  level={0}
+                  parentId={file.inode_id}
+                />
               ))}
             </tbody>
           </table>

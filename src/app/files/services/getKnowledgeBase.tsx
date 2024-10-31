@@ -7,8 +7,8 @@ export const getKnowledgeBaseService = async () => {
     .then((res) => res.data);
 };
 
-export const getFilesListKnowledgeBaseService  = async (id: string) => {
+export const getFilesListKnowledgeBaseService  = async (id: string, resource:string = "%2F") => {
   return await httpClient
-    .get(`/knowledge_bases/${id}/resources/children?resource_path=%2F`)
+    .get(`/knowledge_bases/${id}/resources/children?resource_path=${resource}`)
     .then((res) => res.data);
 }

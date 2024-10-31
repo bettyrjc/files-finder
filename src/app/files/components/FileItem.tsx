@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Folder, FileText } from 'lucide-react';
-//TODO: puts files
+import { ChevronRight, ChevronDown, Folder, FileText, Loader, Trash2Icon } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getFilesListKnowledgeBaseService } from '../services/getKnowledgeBase';
 type InodePath = {
   path: string;
 }
@@ -26,20 +27,37 @@ type FileItemType = {
 type FileItemProps = {
   item?: FileItemType;
   level?: number;
+  parentId?: string;
 }
 
-const FileItem = ({ item, level = 0 }: FileItemProps) => {
+const FileItem = ({ item, level = 0, parentId }: FileItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const isDirectory = item && item.inode_type === "directory";
-  const getFileType = (item?: FileItemType) => {
-    if (!item || !item.inode_type) return "Unknown";
-    if (item.inode_type === "directory") return "Folder";
-    if (item.content_mime) {
-      const mimeType = item.content_mime.split('/').pop();
-      return mimeType ? mimeType.charAt(0).toUpperCase() + mimeType.slice(1) : "File";
-    }
-    return "File";
-  };
+  const queryClient = useQueryClient();
+
+  const { data: childrenData, isLoading } = useQuery({
+    queryKey: ['knowledge_files', item?.inode_id],
+    queryFn: async () => {
+      if (!isDirectory) return null;
+      const children = await getFilesListKnowledgeBaseService(item?.knowledge_base_id, item.inode_id);
+      const existingData = queryClient.getQueryData<FileItemType[]>(['knowledge_files']) || [];
+      const updatedData = existingData.map(file => {
+        if (file.inode_id === item.inode_id) {
+          return { ...file, children };
+        }
+        return file;
+      });
+
+      queryClient.setQueryData(['knowledge_files'], updatedData);
+      return children;
+    },
+    enabled: isOpen && isDirectory, // Only fetch when directory is open
+  });
+  const openFile = (path: string) => {
+    console.log(path);
+    setIsOpen(!isOpen)
+
+  }
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
@@ -55,6 +73,53 @@ const FileItem = ({ item, level = 0 }: FileItemProps) => {
     }
   };
 
+  const handleSoftDelete = () => {
+    console.log('delete', item?.inode_id);
+    // recursive function for found and update the parent element
+    const updateParentChildren = (data: FileItemType[], targetParentId?: string, itemIdToRemove?: string): FileItemType[] => {
+      return data.map(file => {
+        if (file.inode_id === targetParentId) {
+          //if we found the parent, we filter the child we want to remove
+          return {
+            ...file,
+            children: file.children?.filter(child => child.inode_id !== itemIdToRemove)
+          };
+        }
+        // If this element has children, recursively search in them
+        if (file.children?.length) {
+          return {
+            ...file,
+            children: updateParentChildren(file.children, targetParentId, itemIdToRemove)
+          };
+        }
+        return file;
+      });
+    };
+
+    // If we are in  level 0
+    if (!parentId) {
+      queryClient.setQueryData<FileItemType[]>(['knowledge_files'], (oldData) =>
+        oldData?.filter(file => file.inode_id !== item?.inode_id) || []
+      );
+    }
+    // children of antoher file
+    else {
+      queryClient.setQueryData<FileItemType[]>(['knowledge_files'], (oldData) => {
+        if (!oldData) return [];
+        return updateParentChildren(oldData, parentId, item?.inode_id);
+      });
+
+      // Also update the specific query of the parent
+      queryClient.setQueryData<FileItemType[]>(['knowledge_files', parentId], (oldData) =>
+        oldData?.filter(file => file.inode_id !== item?.inode_id) || []
+      );
+    }
+  };
+
+  //todo:
+  // inode_id: "1" if I have files i need to open them
+  // but firts I need to get the files
+  // and then open them but it would be faster if I have the files
   return (
     <>
       <tr className="hover:bg-gray-50">
@@ -62,10 +127,14 @@ const FileItem = ({ item, level = 0 }: FileItemProps) => {
           <div className="flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
             {isDirectory ? (
               <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-1 mr-2 rounded hover:bg-gray-200"
+                onClick={() => openFile(item.inode_id)}
+                className="p-1 mr-2 rounded hover:bg-gray-100"
               >
-                {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                {isLoading ? (
+                  <Loader className="w-4 h-4 border-blue-500 animate-spin" size={10} color="#b8b8b8" />
+                ) : (
+                  isOpen ? <ChevronDown size={16} color="#b8b8b8" /> : <ChevronRight size={16} color="#b8b8b8" />
+                )}
               </button>
             ) : (
               <span className="w-8" />
@@ -82,16 +151,25 @@ const FileItem = ({ item, level = 0 }: FileItemProps) => {
           {formatDate(item?.modified_at)}
         </td>
         <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-          {getFileType(item)}
+          {item?.inode_type.toLocaleUpperCase()}
+        </td>
+        <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+          <button
+            onClick={handleSoftDelete}
+            className="p-1 mr-2 rounded hover:bg-gray-100"
+          >
+            <Trash2Icon size={16} className="text-red-400" />
+          </button>
         </td>
       </tr>
-      {/* {isOpen && isDirectory && item?.children!.map((child, index) => (
+      {isOpen && childrenData && childrenData.map((child: any, index: any) => (
         <FileItem
-          key={`${child.name}-${index}`}
+          key={`${child.inode_id}-${index}`}
           item={child}
           level={level + 1}
+          parentId={item.inode_id}
         />
-      ))} */}
+      ))}
     </>
   );
 };
