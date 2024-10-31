@@ -13,6 +13,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // TODO: allow validation for 401.
+    //TODO: sign out function
+    // TODO: fix type errors
     if (!session?.access_token) return;
 
     refAccessToken.current = session?.access_token;

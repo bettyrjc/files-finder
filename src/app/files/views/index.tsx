@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 'use client'
 
@@ -8,16 +9,17 @@ import SearchInput from '../../shared/inputs/SearchInput'
 import Button from '../../shared/buttons/Button'
 import { ArrowDownUp } from 'lucide-react'
 import { useKnowledgeBasesService } from '../hooks/useKnowledgeBasesService'
+import { useFilesListKnowledgeBasesService } from '../hooks/useFilesListKnowledgeBaseService'
 
 const FilesFinder = () => {
   const searchInput = useRef<HTMLInputElement>(null)
-
-
   const {
     data,
   } = useKnowledgeBasesService()
+  const knowledgeBaseInfo = data?.admin[0] || {}
 
-  console.log("files", data)
+  const { data: filesData } = useFilesListKnowledgeBasesService(knowledgeBaseInfo?.knowledge_base_id || '')
+
   return (
 
     <div className="w-full min-h-[700px] h-full   text-gray-900 mt-0 pt-0">
@@ -59,7 +61,7 @@ const FilesFinder = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {files.map((file, index) => (
+              {filesData?.length > 0 && filesData.map((file: any, index: any) => (
                 <FileItem key={`${file.name}-${index}`} item={file} />
               ))}
             </tbody>
