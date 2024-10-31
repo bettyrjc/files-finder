@@ -8,7 +8,7 @@ type InodePath = {
   path: string;
 }
 
-type FileItemType = {
+export type FileItemType = {
   knowledge_base_id: string;
   created_at: string;
   modified_at: string;
@@ -28,9 +28,10 @@ type FileItemProps = {
   item?: FileItemType;
   level?: number;
   parentId?: string;
+  onDelete: (itemId: string) => void;
 }
 
-const FileItem = ({ item, level = 0, parentId }: FileItemProps) => {
+const FileItem = ({ item, level = 0, onDelete }: FileItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const isDirectory = item && item.inode_type === "directory";
   const queryClient = useQueryClient();
@@ -74,45 +75,8 @@ const FileItem = ({ item, level = 0, parentId }: FileItemProps) => {
   };
 
   const handleSoftDelete = () => {
-    console.log('delete', item?.inode_id);
-    // recursive function for found and update the parent element
-    const updateParentChildren = (data: FileItemType[], targetParentId?: string, itemIdToRemove?: string): FileItemType[] => {
-      return data.map(file => {
-        if (file.inode_id === targetParentId) {
-          //if we found the parent, we filter the child we want to remove
-          return {
-            ...file,
-            children: file.children?.filter(child => child.inode_id !== itemIdToRemove)
-          };
-        }
-        // If this element has children, recursively search in them
-        if (file.children?.length) {
-          return {
-            ...file,
-            children: updateParentChildren(file.children, targetParentId, itemIdToRemove)
-          };
-        }
-        return file;
-      });
-    };
-
-    // If we are in  level 0
-    if (!parentId) {
-      queryClient.setQueryData<FileItemType[]>(['knowledge_files'], (oldData) =>
-        oldData?.filter(file => file.inode_id !== item?.inode_id) || []
-      );
-    }
-    // children of antoher file
-    else {
-      queryClient.setQueryData<FileItemType[]>(['knowledge_files'], (oldData) => {
-        if (!oldData) return [];
-        return updateParentChildren(oldData, parentId, item?.inode_id);
-      });
-
-      // Also update the specific query of the parent
-      queryClient.setQueryData<FileItemType[]>(['knowledge_files', parentId], (oldData) =>
-        oldData?.filter(file => file.inode_id !== item?.inode_id) || []
-      );
+    if (item?.inode_id) {
+      onDelete(item.inode_id);
     }
   };
 
@@ -167,7 +131,8 @@ const FileItem = ({ item, level = 0, parentId }: FileItemProps) => {
           key={`${child.inode_id}-${index}`}
           item={child}
           level={level + 1}
-          parentId={item.inode_id}
+          parentId={item?.inode_id}
+          onDelete={handleSoftDelete}
         />
       ))}
     </>

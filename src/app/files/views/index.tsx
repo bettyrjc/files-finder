@@ -3,22 +3,56 @@
 'use client'
 
 import React, { useRef } from 'react'
-import FileItem from '../components/FileItem'
-import { files } from 'src/assets/Data'
+import FileItem, { FileItemType } from '../components/FileItem'
+// import { files } from 'src/assets/Data'
 import SearchInput from '../../shared/inputs/SearchInput'
 import Button from '../../shared/buttons/Button'
 import { ArrowDownUp } from 'lucide-react'
 import { useKnowledgeBasesService } from '../hooks/useKnowledgeBasesService'
-import { useFilesListKnowledgeBasesService } from '../hooks/useFilesListKnowledgeBaseService'
+// import { useFilesListKnowledgeBasesService } from '../hooks/useFilesListKnowledgeBaseService'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getFilesListKnowledgeBaseService } from '../services/getKnowledgeBase'
 
 const FilesFinder = () => {
   const searchInput = useRef<HTMLInputElement>(null)
   const {
     data,
+    isSuccess: isKnowledgeBaseSuccess
   } = useKnowledgeBasesService()
   const knowledgeBaseInfo = data?.admin[0] || {}
+  const knowledgeBaseId = knowledgeBaseInfo?.knowledge_base_id || ''
 
-  const { data: filesData } = useFilesListKnowledgeBasesService(knowledgeBaseInfo?.knowledge_base_id || '')
+  // const { data: filesData } = useFilesListKnowledgeBasesService(knowledgeBaseInfo?.knowledge_base_id || '')
+  const queryClient = useQueryClient();
+
+  // Query principal para obtener los archivos raíz
+  const { data: filesData } = useQuery({
+    queryKey: ['knowledge_files', knowledgeBaseId],
+    queryFn: () => getFilesListKnowledgeBaseService(knowledgeBaseId),
+    enabled: Boolean(knowledgeBaseId) && isKnowledgeBaseSuccess,
+  });
+
+  
+  const handleDelete = (itemId: string) => {
+    // Función recursiva para encontrar y actualizar elementos
+    const removeItem = (items: FileItemType[]): FileItemType[] => {
+      return items.filter(item => {
+        if (item.inode_id === itemId) {
+          return false;
+        }
+        if (item.children) {
+          item.children = removeItem(item.children);
+        }
+        return true;
+      });
+    };
+
+    // Actualizar el cache para la consulta principal
+    queryClient.setQueryData(
+      ['knowledge_files', knowledgeBaseId],
+      (oldData: FileItemType[] | undefined) => oldData ? removeItem(oldData) : []
+    );
+  };
 
   return (
 
@@ -68,13 +102,14 @@ const FilesFinder = () => {
                 <FileItem key={`${file.name}-${index}`} item={file}
                   level={0}
                   parentId={file.inode_id}
+                  onDelete={handleDelete}
                 />
               ))}
             </tbody>
           </table>
           <div className="px-2 py-4 bg-white border border-gray border-t-transparent">
             <div className='text-sm text-gray-600'>
-              files: <span>{files?.length}</span>
+              files: <span>{filesData?.length}</span>
             </div>
           </div>
         </div>
