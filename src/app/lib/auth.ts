@@ -1,5 +1,3 @@
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -11,19 +9,16 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: {
-        },
-        password: {
-        },
+        email: {},
+        password: {},
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing credentials", { 
-            cause: { err: { code: 'credentials' } } 
+          throw new Error("Missing credentials", {
+            cause: { err: { code: "credentials" } },
           });
         }
         try {
-
           const response = await fetch(
             `${API_URL}/auth/v1/token?grant_type=password`,
             {
@@ -34,7 +29,7 @@ export const authOptions: NextAuthOptions = {
                 Apikey: process.env.ANON_KEY || "",
               },
               body: JSON.stringify({
-                email: "stackaitest@gmail.com", //TODO: remove this 
+                email: "stackaitest@gmail.com", //TODO: remove this
                 password: "!z4ZnxkyLYs#vR", //TODO: remove this
                 gotrue_meta_security: {},
               }),
@@ -44,19 +39,22 @@ export const authOptions: NextAuthOptions = {
           const data = await response.json();
 
           if (!response.ok) {
-            throw new Error(data?.errors?.[0]?.detail || "Authentication failed BET", { 
-              cause: { err: { code: 'credentials' } } 
-            });
+            throw new Error(
+              data?.errors?.[0]?.detail || "Authentication failed BET",
+              {
+                cause: { err: { code: "credentials" } },
+              }
+            );
           }
 
-          if(!data.access_token) {
-            throw new Error("No access token", { 
-              cause: { err: { code: 'credentials' } } 
+          if (!data.access_token) {
+            throw new Error("No access token", {
+              cause: { err: { code: "credentials" } },
             });
           }
 
           return {
-            id: data.id || credentials.email,
+            id: data.user.id || credentials.email,
             email: credentials.email,
             access_token: data.access_token,
             refresh_token: data.refresh_token,
@@ -64,8 +62,8 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error: any) {
           console.error("5. Authorization Error:", error);
-          throw new Error(error.message || "Authentication failed", { 
-            cause: { err: { code: 'credentials' } } 
+          throw new Error(error.message || "Authentication failed", {
+            cause: { err: { code: "credentials" } },
           });
         }
       },
