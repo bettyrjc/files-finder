@@ -62,8 +62,6 @@ const FilesFinder = () => {
             </div>
           </div>
         </div>
-
-
       </>
     </div>
   )
