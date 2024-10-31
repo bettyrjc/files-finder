@@ -9,6 +9,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const refInterceptor = useRef<number>(null);
   const refAccessToken = useRef(null);
+  console.log('AUTHPROVIDER', session)
 
   useEffect(() => {
     // TODO: allow validation for 401.

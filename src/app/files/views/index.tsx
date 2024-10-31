@@ -7,10 +7,17 @@ import { files } from 'src/assets/Data'
 import SearchInput from '../../shared/inputs/SearchInput'
 import Button from '../../shared/buttons/Button'
 import { ArrowDownUp } from 'lucide-react'
+import { useKnowledgeBasesService } from '../hooks/useKnowledgeBasesService'
 
 const FilesFinder = () => {
   const searchInput = useRef<HTMLInputElement>(null)
 
+
+  const {
+    data,
+  } = useKnowledgeBasesService()
+
+  console.log("files", data)
   return (
 
     <div className="w-full min-h-[700px] h-full   text-gray-900 mt-0 pt-0">

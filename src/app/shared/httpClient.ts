@@ -3,7 +3,8 @@ import axios, { AxiosRequestConfig } from 'axios';
 // import { cleanAuthCookies } from '@utils/cookies';
 
 function getApiUrl() {
-  const url = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || '';
+  console.log("process.env.API_URL", process.env.API_URL)
+  const url = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.stack-ai.com';
   return `${url}`;
 }
 
