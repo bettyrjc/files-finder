@@ -10,8 +10,11 @@ import { ArrowDownUp, Loader } from 'lucide-react'
 import { useKnowledgeBasesService } from '../hooks/useKnowledgeBasesService'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getFilesListKnowledgeBaseService } from '../services/getKnowledgeBase'
+import { useSession } from 'next-auth/react'
 
 const FilesFinder = () => {
+  const session = useSession()
+  const isAuthenticated = session?.status === 'authenticated'
   const searchInput = useRef<HTMLInputElement>(null)
   const [dataValue, setDataValue] = useState<FileItemType[]>([])
   const [direction, setDirection] = useState('desc');
@@ -19,17 +22,21 @@ const FilesFinder = () => {
     data,
     isSuccess: isKnowledgeBaseSuccess,
     isLoading: isKnowledgeBaseLoading,
-  } = useKnowledgeBasesService()
+  } = useKnowledgeBasesService(isAuthenticated)
   const knowledgeBaseInfo = data?.admin[0] || {}
   const knowledgeBaseId = knowledgeBaseInfo?.knowledge_base_id || ''
   const queryClient = useQueryClient();
 
-  const { data: filesData } = useQuery({
+  const { data: filesData, isLoading: isLoadingFiles } = useQuery({
     queryKey: ['knowledge_files', knowledgeBaseId],
     queryFn: () => getFilesListKnowledgeBaseService(knowledgeBaseId),
-    enabled: Boolean(knowledgeBaseId) && isKnowledgeBaseSuccess,
+    enabled: Boolean(knowledgeBaseId) && isKnowledgeBaseSuccess, //enabled when knowledgeBaseId is available
   });
 
+  /**
+   * 
+   * @param itemId 
+   */
   const handleDelete = (itemId: string) => {
     const removeItem = (items: FileItemType[]): FileItemType[] => {
       return items.filter(item => {
@@ -48,6 +55,11 @@ const FilesFinder = () => {
       (oldData: FileItemType[] | undefined) => oldData ? removeItem(oldData) : []
     );
   };
+  /**
+   * 
+   * @param direction: String
+   * @returns 
+   */
   const sortDataByDate = (direction = 'desc') => {
     if (dataValue.length === 0) return;
     const data = dataValue.sort((a: FileItemType, b: FileItemType) => {
@@ -61,6 +73,11 @@ const FilesFinder = () => {
     setDirection(direction === 'desc' ? 'asc' : 'desc');
     setDataValue([...data]);
   };
+  /**
+   * 
+   * @param direction: String
+   * @returns 
+   */
   const sortDataByName = (direction = 'desc') => {
     if (dataValue.length === 0) return;
     const data = dataValue.sort((a: FileItemType, b: FileItemType) => {
@@ -76,14 +93,18 @@ const FilesFinder = () => {
   }
 
   useEffect(() => {
+    //set dataValue to filesData for manipulate data to sort
     if (filesData?.length === 0) return
     setDataValue(filesData)
   }, [filesData])
+
+  // TODO: Implement search functionality
+
   return (
 
     <div className="w-full min-h-[700px] h-full   text-gray-900 mt-0 pt-0">
       {
-        isKnowledgeBaseLoading ? (<div className='flex flex-col items-center justify-center h-[700px]'>
+        isKnowledgeBaseLoading || isLoadingFiles ? (<div className='flex flex-col items-center justify-center h-[700px]'>
           <Loader className="border-blue-500 animate-spin" size={50} color="orange" />
           <p className="text-orange-400">Loading...</p>
         </div>) : <>
