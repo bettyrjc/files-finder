@@ -28,10 +28,11 @@ type FileItemProps = {
   item?: FileItemType;
   level?: number;
   parentId?: string;
-  onDelete: (itemId: string) => void;
+  knowledgeBaseId?: string;
+  onDelete: (itemId: string, parentId?: string, knowledgeBaseId?: string) => void;
 }
 
-const FileItem = ({ item, level = 0, onDelete }: FileItemProps) => {
+const FileItem = ({ item, level = 0, onDelete, parentId, knowledgeBaseId }: FileItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const isDirectory = item && item.inode_type === "directory";
   const queryClient = useQueryClient();
@@ -77,10 +78,11 @@ const FileItem = ({ item, level = 0, onDelete }: FileItemProps) => {
   const handleSoftDelete = () => {
     if (item?.inode_id) {
       setIsOpen(false)
-      onDelete(item.inode_id);
+      onDelete(item.inode_id, parentId, knowledgeBaseId);
     }
   };
 
+  
   //todo:
   // inode_id: "1" if I have files i need to open them
   // but firts I need to get the files
@@ -133,7 +135,9 @@ const FileItem = ({ item, level = 0, onDelete }: FileItemProps) => {
           item={child}
           level={level + 1}
           parentId={item?.inode_id}
-          onDelete={handleSoftDelete}
+          onDelete={onDelete}
+          knowledgeBaseId={knowledgeBaseId}
+
         />
       ))}
     </>

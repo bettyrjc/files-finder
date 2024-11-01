@@ -33,27 +33,48 @@ const FilesFinder = () => {
     enabled: Boolean(knowledgeBaseId) && isKnowledgeBaseSuccess, //enabled when knowledgeBaseId is available
   });
 
-  /**
-   * 
-   * @param itemId 
-   */
-  const handleDelete = (itemId: string) => {
-    const removeItem = (items: FileItemType[]): FileItemType[] => {
-      return items.filter(item => {
-        if (item.inode_id === itemId) {
-          return false;
-        }
-        if (item.children) {
-          item.children = removeItem(item.children);
-        }
-        return true;
-      });
-    };
+  // /**
+  //  * 
+  //  * @param itemId 
+  //  */
+  // const handleDelete = (itemId: string) => {
+  //   const removeItem = (items: FileItemType[]): FileItemType[] => {
+  //     return items.filter(item => {
+  //       if (item.inode_id === itemId) {
+  //         return false;
+  //       }
+  //       if (item.children) {
+  //         item.children = removeItem(item.children);
+  //       }
+  //       return true;
+  //     });
+  //   };
 
-    queryClient.setQueryData(
-      ['knowledge_files', knowledgeBaseId],
-      (oldData: FileItemType[] | undefined) => oldData ? removeItem(oldData) : []
-    );
+  //   queryClient.setQueryData(
+  //     ['knowledge_files', knowledgeBaseId],
+  //     (oldData: FileItemType[] | undefined) => oldData ? removeItem(oldData) : []
+  //   );
+  // };
+  const handleDelete = (itemId: string, parentId?: string) => {
+
+    if (parentId) {
+      // IF parentId is available, it means it's a child element
+      queryClient.setQueryData(
+        ['knowledge_files', parentId],
+        (oldData: FileItemType[] | undefined) =>
+          oldData ? oldData.filter(item => item.inode_id !== itemId) : []
+      );
+    } else {
+      //IF parentId is not available, it means it's a root element
+      queryClient.setQueryData(
+        ['knowledge_files', knowledgeBaseId],
+        (oldData: FileItemType[] | undefined) =>
+          oldData ? oldData.filter(item => item.inode_id !== itemId) : []
+      );
+    }
+
+    // UPDATE dataValue state
+    setDataValue(prevData => prevData.filter(item => item.inode_id !== itemId));
   };
   /**
    * 
@@ -158,10 +179,12 @@ const FilesFinder = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {dataValue?.length > 0 && dataValue?.map((file: any, index: any) => (
-                  <FileItem key={`${file.name}-${index}`} item={file}
+                  <FileItem key={`${file.name}-${index}`}
+                    item={file}
                     level={0}
                     parentId={file.inode_id}
                     onDelete={handleDelete}
+                    knowledgeBaseId={knowledgeBaseId}
                   />
                 ))}
               </tbody>
