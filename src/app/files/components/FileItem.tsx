@@ -76,6 +76,7 @@ const FileItem = ({ item, level = 0, onDelete }: FileItemProps) => {
 
   const handleSoftDelete = () => {
     if (item?.inode_id) {
+      setIsOpen(false)
       onDelete(item.inode_id);
     }
   };
