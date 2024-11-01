@@ -74,9 +74,9 @@ export const authOptions: NextAuthOptions = {
       if (account && user) {
         return {
           ...token,
-          access_token: user.access_token,
-          refresh_token: user.refresh_token,
-          expires_at: user.expires_at,
+          access_token: (user as any).access_token,
+          refresh_token: (user as any).refresh_token,
+          expires_at: (user as any).expires_at,
         };
       }
       return token;
