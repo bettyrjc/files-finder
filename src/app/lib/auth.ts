@@ -29,8 +29,8 @@ export const authOptions: NextAuthOptions = {
                 Apikey: process.env.ANON_KEY || "",
               },
               body: JSON.stringify({
-                email: "stackaitest@gmail.com", //TODO: remove this
-                password: "!z4ZnxkyLYs#vR", //TODO: remove this
+                email: process.env.EMAIL, //TODO: remove this
+                password:process.env.PASSWORD, //TODO: remove this
                 gotrue_meta_security: {},
               }),
             }

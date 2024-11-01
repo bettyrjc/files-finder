@@ -27,7 +27,7 @@ const Header = () => {
             variant="outlined"
             icon={<LogOut size={12} />}
           >
-            Cerrar sesion
+            Log out
           </Button>
         </div>
       </div>

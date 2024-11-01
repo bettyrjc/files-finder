@@ -62,7 +62,12 @@ config envs, see .env.template.
  - [ ] add search input
  - [ ] add filter by name
  - [ ] test
+ - [ ] allow validation for 401.
+ - [ ] finish to setup logout and put email a password in auth config
+ - [ ] paginate the 'table', charging data when is in the end of the screen
+ - [ ] 
  
 # NOTE: 
 - .env.template should be withou values, but for challenge test I put there easier config.All in a site.
-- API for login, is only for configuration, I did it for don't  
+- API for login, is only for configuration, the info to login correct user is in env. 
+- logout 
