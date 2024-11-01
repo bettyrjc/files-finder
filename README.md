@@ -63,11 +63,11 @@ config envs, see .env.template.
  - [ ] add filter by name
  - [ ] test
  - [ ] allow validation for 401.
- - [ ] finish to setup logout and put email a password in auth config
- - [ ] paginate the 'table', charging data when is in the end of the screen
- - [ ] 
+ - [ ] finish setup logout and put email a password in the auth config
+ - [ ] paginate the 'table', charging data when it is at the end of the screen
  
 # NOTE: 
-- .env.template should be withou values, but for challenge test I put there easier config.All in a site.
-- API for login, is only for configuration, the info to login correct user is in env. 
-- logout 
+- .env.template should be without values, but for the challenge test, I put all for a faster access
+- API for login is only for configuration, the info to log in the correct user is in env. 
+- Logout all configuration is missing.
+-Auth config is only for effect ux it is not complete.
