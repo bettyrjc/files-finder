@@ -1,12 +1,12 @@
-# Choose yours pokemon to combat 🤺
+# File finder 🔎
 
-# Stack
+# Stack 📚
 - React
 - TankStack query
 - TypeScrip
 - Next.js
 
-# setup project
+# setup project 🫨
 
 `git clone https://github.com/bettyrjc/files-finder.git`
 `npm install`
