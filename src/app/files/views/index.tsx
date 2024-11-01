@@ -2,9 +2,9 @@
 
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import FileItem, { FileItemType } from '../components/FileItem'
-import SearchInput from '../../shared/inputs/SearchInput'
+// import SearchInput from '../../shared/inputs/SearchInput'
 import Button from '../../shared/buttons/Button'
 import { ArrowDownUp, Loader } from 'lucide-react'
 import { useKnowledgeBasesService } from '../hooks/useKnowledgeBasesService'
@@ -15,7 +15,7 @@ import { useSession } from 'next-auth/react'
 const FilesFinder = () => {
   const session = useSession()
   const isAuthenticated = session?.status === 'authenticated'
-  const searchInput = useRef<HTMLInputElement>(null)
+  // const searchInput = useRef<HTMLInputElement>(null)
   const [dataValue, setDataValue] = useState<FileItemType[]>([])
   const [direction, setDirection] = useState('desc');
   const {
@@ -98,7 +98,7 @@ const FilesFinder = () => {
     setDataValue(filesData)
   }, [filesData])
 
-  // TODO: Implement search functionality
+  // TODO: Implement search functionality and show it
 
   return (
 
@@ -130,12 +130,12 @@ const FilesFinder = () => {
                 Sort by name
               </Button>
             </div>
-            <div >
+            {/* <div >
               <SearchInput
-                onChange={(e) => console.log(e.target.value)}
+                onChange={(e) => searchByName(e.target.value)}
                 ref={searchInput}
               />
-            </div>
+            </div> */}
           </div>
           {/* files */}
           <div className="mt-2 overflow-x-auto">
