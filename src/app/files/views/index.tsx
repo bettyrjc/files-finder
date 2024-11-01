@@ -11,6 +11,7 @@ import { useKnowledgeBasesService } from '../hooks/useKnowledgeBasesService'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getFilesListKnowledgeBaseService } from '../services/getKnowledgeBase'
 import { useSession } from 'next-auth/react'
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal'
 
 const FilesFinder = () => {
   const session = useSession()
@@ -18,6 +19,13 @@ const FilesFinder = () => {
   // const searchInput = useRef<HTMLInputElement>(null)
   const [dataValue, setDataValue] = useState<FileItemType[]>([])
   const [direction, setDirection] = useState('desc');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<{
+    id: string;
+    name: string;
+    parentId?: string;
+    knowledgeBaseId?: string;
+  } | null>(null);
   const {
     data,
     isSuccess: isKnowledgeBaseSuccess,
@@ -33,28 +41,6 @@ const FilesFinder = () => {
     enabled: Boolean(knowledgeBaseId) && isKnowledgeBaseSuccess, //enabled when knowledgeBaseId is available
   });
 
-  // /**
-  //  * 
-  //  * @param itemId 
-  //  */
-  // const handleDelete = (itemId: string) => {
-  //   const removeItem = (items: FileItemType[]): FileItemType[] => {
-  //     return items.filter(item => {
-  //       if (item.inode_id === itemId) {
-  //         return false;
-  //       }
-  //       if (item.children) {
-  //         item.children = removeItem(item.children);
-  //       }
-  //       return true;
-  //     });
-  //   };
-
-  //   queryClient.setQueryData(
-  //     ['knowledge_files', knowledgeBaseId],
-  //     (oldData: FileItemType[] | undefined) => oldData ? removeItem(oldData) : []
-  //   );
-  // };
   const handleDelete = (itemId: string, parentId?: string) => {
 
     if (parentId) {
@@ -113,14 +99,29 @@ const FilesFinder = () => {
     setDataValue([...data]);
   }
 
+  const handleDeleteClick = (
+    id: string,
+    name: string,
+    parentId?: string,
+    knowledgeBaseId?: string
+  ) => {
+    setItemToDelete({
+      id,
+      name,
+      parentId,
+      knowledgeBaseId
+    });
+    setIsDeleteModalOpen(true);
+  };
+
   useEffect(() => {
     //set dataValue to filesData for manipulate data to sort
     if (filesData?.length === 0) return
     setDataValue(filesData)
   }, [filesData])
 
-  // TODO: Implement search functionality and show it
 
+  // TODO: Implement search functionality and show it
   return (
 
     <div className="w-full min-h-[700px] h-full   text-gray-900 mt-0 pt-0">
@@ -183,7 +184,7 @@ const FilesFinder = () => {
                     item={file}
                     level={0}
                     parentId={file.inode_id}
-                    onDelete={handleDelete}
+                    onDelete={handleDeleteClick}
                     knowledgeBaseId={knowledgeBaseId}
                   />
                 ))}
@@ -197,6 +198,16 @@ const FilesFinder = () => {
           </div>
         </>
       }
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        itemToDelete={itemToDelete}
+
+      />
     </div>
   )
 }

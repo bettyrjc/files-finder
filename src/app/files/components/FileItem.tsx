@@ -29,7 +29,7 @@ type FileItemProps = {
   level?: number;
   parentId?: string;
   knowledgeBaseId?: string;
-  onDelete: (itemId: string, parentId?: string, knowledgeBaseId?: string) => void;
+  onDelete: (id: string, name: string, parentId?: string, knowledgeBaseId?: string) => void;
 }
 
 const FileItem = ({ item, level = 0, onDelete, parentId, knowledgeBaseId }: FileItemProps) => {
@@ -76,9 +76,14 @@ const FileItem = ({ item, level = 0, onDelete, parentId, knowledgeBaseId }: File
   };
 
   const handleSoftDelete = () => {
-    if (item?.inode_id) {
-      setIsOpen(false)
-      onDelete(item.inode_id, parentId, knowledgeBaseId);
+    if (item?.inode_id && item?.inode_path?.path) {
+      setIsOpen(false);
+      onDelete(
+        item.inode_id,
+        item.inode_path.path,
+        parentId,
+        knowledgeBaseId
+      );
     }
   };
 
