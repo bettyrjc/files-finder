@@ -65,6 +65,7 @@ config envs, see .env.template.
  - [ ] allow validation for 401.
  - [ ] finish setup logout and put email a password in the auth config
  - [ ] paginate the 'table', charging data when it is at the end of the screen
+ - [ ] put list of data for user select whatever they want.
  
 # NOTE: 
 - .env.template should be without values, but for the challenge test, I put all for a faster access
