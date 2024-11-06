@@ -31,10 +31,10 @@ const FilesFinder = () => {
     isSuccess: isKnowledgeBaseSuccess,
     isLoading: isKnowledgeBaseLoading,
   } = useKnowledgeBasesService(isAuthenticated)
-  const knowledgeBaseInfo = data?.admin[0] || {}
+  const filteredWithData = data?.admin.filter((item: any) => item.is_empty === false) || []
+  const knowledgeBaseInfo = filteredWithData?.[0] || {}
   const knowledgeBaseId = knowledgeBaseInfo?.knowledge_base_id || ''
   const queryClient = useQueryClient();
-
   const { data: filesData, isLoading: isLoadingFiles } = useQuery({
     queryKey: ['knowledge_files', knowledgeBaseId],
     queryFn: () => getFilesListKnowledgeBaseService(knowledgeBaseId),
@@ -122,14 +122,24 @@ const FilesFinder = () => {
 
 
   // TODO: Implement search functionality and show it
+
+  if (isKnowledgeBaseLoading || isLoadingFiles) {
+    return (
+      <div className="w-full min-h-[700px] h-full   text-gray-900 mt-0 pt-0">
+        <div className='flex flex-col items-center justify-center h-[700px]'>
+          <Loader className="border-blue-500 animate-spin" size={50} color="orange" />
+          <p className="text-orange-400">Loading...</p>
+        </div>
+      </div >
+    )
+  }
   return (
 
     <div className="w-full min-h-[700px] h-full   text-gray-900 mt-0 pt-0">
-      {
-        isKnowledgeBaseLoading || isLoadingFiles ? (<div className='flex flex-col items-center justify-center h-[700px]'>
-          <Loader className="border-blue-500 animate-spin" size={50} color="orange" />
-          <p className="text-orange-400">Loading...</p>
-        </div>) : <>
+      <div>
+        {/* TODO: list all your databases */}
+        {/* list tables */}
+        <div>
           {/* header table NTH */}
           <div className="items-center justify-between gap-6 px-2 py-4 border border-gray-200 md:flex ">
             <div className='flex gap-2 mb-2 md:mb-0'>
@@ -190,14 +200,18 @@ const FilesFinder = () => {
                 ))}
               </tbody>
             </table>
+            {dataValue?.length === 0 &&
+              <div className="h-[200px] w-full flex items-center justify-center">No files found</div>
+            }
             <div className="px-2 py-4 bg-white border border-gray border-t-transparent">
               <div className='text-sm text-gray-600'>
                 files: <span>{dataValue?.length}</span>
               </div>
             </div>
           </div>
-        </>
-      }
+        </div>
+      </div>
+
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => {

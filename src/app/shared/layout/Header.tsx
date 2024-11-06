@@ -10,7 +10,7 @@ import { LogOut } from 'lucide-react';
 const Header = () => {
 
   const logout = () => {
-    console.log('hola')
+    console.log('logout')
   }
   return (
     <>

@@ -5,9 +5,7 @@ import { useSession } from "next-auth/react"
 import Login from "./auth/page";
 
 export default function Home() {
-  const { data: session, status } = useSession()
-  console.log('session', session)
-  console.log('status', status)
+  const { status } = useSession()
 
   if (status === "loading") {
     return <div>Loading...</div>

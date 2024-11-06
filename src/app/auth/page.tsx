@@ -25,7 +25,6 @@ const Login = () => {
         password,
         redirect: false,
       })
-      console.log("result", result)
       if(result?.ok){
         router.push("/")
       }
@@ -35,7 +34,6 @@ const Login = () => {
         return error.cause.err.message; // return "custom error"
       }
       setError("Ocurrió un error durante el inicio de sesión")
-      console.log(error)
     } finally {
       setLoading(false)
     }
